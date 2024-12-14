@@ -8,12 +8,14 @@ API_KEY = ENV['OPENAI_API_KEY']
 
 OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
 
-def generate_response(word, sentence, model = 'gpt-4o-mini-2024-07-18', max_tokens = 1000)
+def generate_response(word, sentence, model = 'gpt-4o-mini-2024-07-18', max_tokens = 2000)
   prompt = <<~TEXT
     Teach me about the word \"#{word}\" and its different parts of speech in English.
     I read this word in the following sentence: \"#{sentence}\"
-    Give 4 standard examples of how this word is used in sentences in English (you can change the form in different examples), and specify the part of speech of the word for each example.
+    Give 6 standard examples of how this word is used in sentences in English (you can change the form in different examples), and specify the part of speech of the word for each example.
+    Try to use the word in its different forms (e.g. verb, noun, adjective, adverb, etc.) in the examples.
     The examples should be simple and easy to understand, and they should help me understand the meaning of the word.
+    Do not use any other words that are difficult to understand, and do not use the word more than once in the same example.
   TEXT
 
   response = HTTParty.post(
@@ -47,30 +49,27 @@ def generate_response(word, sentence, model = 'gpt-4o-mini-2024-07-18', max_toke
                 type: "object",
                 additionalProperties: false,
                 properties: {
-                  parts_of_speech_of_word: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      additionalProperties: false,
-                      properties: {
-                        part_of_speech: {
-                          type: "string"
-                        },
-                        word_in_english: {
-                          type: "string"
-                        },
-                        word_in_chinese: {
-                          type: "string"
-                        },
-                        meaning_explained_in_english: {
-                          type: "string"
-                        },
-                        meaning_explained_in_chinese: {
-                          type: "string"
-                        }
+                  explanation_of_word: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      part_of_speech: {
+                        type: "string"
                       },
-                      required: ["part_of_speech", "word_in_english", "word_in_chinese", "meaning_explained_in_english", "meaning_explained_in_chinese"]
-                    }
+                      word_in_english: {
+                        type: "string"
+                      },
+                      word_in_chinese: {
+                        type: "string"
+                      },
+                      meaning_explained_in_english: {
+                        type: "string"
+                      },
+                      meaning_explained_in_chinese: {
+                        type: "string"
+                      }
+                    },
+                    required: ["part_of_speech", "word_in_english", "word_in_chinese", "meaning_explained_in_english", "meaning_explained_in_chinese"]
                   },
                   examples_in_sentences_in_english: {
                     type: "array",
@@ -89,7 +88,7 @@ def generate_response(word, sentence, model = 'gpt-4o-mini-2024-07-18', max_toke
                     }
                   },
                 },
-                required: ["parts_of_speech_of_word", "examples_in_sentences_in_english"]
+                required: ["explanation_of_word", "examples_in_sentences_in_english"]
               }
             },
             required: ["details_of_word"]
@@ -110,9 +109,10 @@ def generate_response(word, sentence, model = 'gpt-4o-mini-2024-07-18', max_toke
   end
 end
 
-# generate_response('carving', 'And as I walked through the forest, I saw some beautiful carvings on the trees.')
+generate_response('carving', 'And as I walked through the forest, I saw some beautiful carvings on the trees.')
 # generate_response('carve', 'The artist carved a beautiful statue out of wood.')
 # generate_response('mansion', 'And as he walked through the forest, he saw a beautiful mansion in the distance.')
 # generate_response('gleaming', 'The sun was gleaming brightly in the sky.')
 # generate_response('successful', 'The girl was successful in her exams.')
-generate_response('success', 'They attributed their success to hard work and perseverance.')
+# generate_response('success', 'They attributed their success to hard work and perseverance.')
+# generate_response('magnet', 'Shanghai is a magnet for tourists from all over the world.')
